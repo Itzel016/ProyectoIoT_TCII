@@ -4,6 +4,6 @@ En base al diseño realizado para crear el sistema se consideran los siguientes 
 + Microcontrolador: Placa de desarrollo ESP32
 + Sensores:
 + Actuadores:
-+ Protocolos de comunicación:
-+ Tecnologías de comunicación:
++ Protocolos de comunicación: MQTT
++ Tecnologías de comunicación: WiFi, Bluetooth
 + Interfaz:
