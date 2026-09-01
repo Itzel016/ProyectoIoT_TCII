@@ -13,7 +13,7 @@ En base al diseño realizado para crear el sistema se consideran los siguientes 
 + Tecnologías de comunicación: WiFi, Bluetooth
 + Interfaz:
 
-Justificación 
+**Justificación**
 
 El desarrollo de este proyecto es importante debido a que busca mejorar la seguridad dentro de las viviendas mediante el uso de tecnología IoT. La integración de sensores y conexión inalámbrica permitirá detectar condiciones que puedan indicar la presencia de un incendio y comunicar esta información de manera oportuna al usuario.
 
