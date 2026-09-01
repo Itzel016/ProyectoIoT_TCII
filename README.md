@@ -88,136 +88,149 @@ Para desarrollar el prototipo del sistema IoT de detección de incendios se util
 
 <img width="709" height="401" alt="Imagen1" src="https://github.com/user-attachments/assets/ac54b2dd-b235-49e1-b2c7-1657b883e7ef" />
 
-## Componentes principales
-
-| Cantidad | Componente | Modelo sugerido | Función |
-|---:|---|---|---|
-| 1 | Microcontrolador | ESP32 DevKit | Recibir y procesar las lecturas de los sensores, controlar las alarmas y enviar información mediante Wi-Fi. |
-| 1 | Sensor de humo y gas | MQ-2 | Detectar humo y gases inflamables como gas LP, metano y butano. |
-| 1 | Sensor de flama | KY-026 | Identificar radiación infrarroja relacionada con la presencia de una llama. |
-| 1 | Sensor de temperatura y humedad | DHT11 o DHT22 | Monitorear cambios de temperatura y humedad dentro de la vivienda. |
-| Varios | Indicadores LED | LED verde, amarillo y rojo | Representar visualmente el estado normal, de advertencia o de peligro. |
-| 3 | Resistencias | 220 Ω | Limitar la corriente que circula por los LED. |
-| 1 | Protoboard | Tamaño mediano | Permitir la conexión temporal de los componentes sin necesidad de soldarlos. |
-| Varios | Cables de conexión | Jumper macho-macho y macho-hembra | Comunicar eléctricamente el ESP32 con los sensores y actuadores. |
-| 1 | Cable de alimentación | USB compatible con ESP32 | Programar y alimentar el microcontrolador ESP32. |
-| 1 | Fuente de alimentación | 5 V regulados | Proporcionar energía estable al prototipo. |
-| 1 | Casita | Replica a escala de un espacio de vivienda | Proteger los componentes permitiendo monitorear las variables replicando la función dentro de una vivienda. |
-
-## Descripción de los componentes
-
-### ESP32
-
-El ESP32 será el componente principal del sistema. Se encargará de leer los sensores, comparar los valores con los niveles establecidos y determinar si existe una posible condición de riesgo.
-
-Se seleccionó porque incorpora conexión Wi-Fi y Bluetooth, cuenta con entradas analógicas y digitales y posee suficiente capacidad para controlar varios sensores y actuadores. Su conectividad permitirá enviar las mediciones y alertas a una plataforma IoT.
-
-### Sensor MQ-135
+# **Módulo ESP32**
 
 **¿Qué es?**
 
-> El sensor MQ-135 es un sensor utilizado para detectar cambios en la calidad del aire y la presencia de determinados gases. En este proyecto se utilizará para monitorear la concentración de humo dentro de una vivienda y detectar posibles indicios de incendio.
+> El ESP32 es un microcontrolador diseñado para desarrollar proyectos electrónicos y sistemas relacionados con el Internet de las Cosas. Cuenta con conectividad Wi-Fi y Bluetooth, además de pines que permiten conectar sensores y otros dispositivos.
+
+> En este proyecto se utilizará como la unidad principal encargada de adquirir, procesar y transmitir la información obtenida por los sensores instalados dentro de la vivienda.
 
 **¿Cómo funciona?**
 
-> El sensor detecta cambios en la concentración de sustancias presentes en el aire y genera una señal eléctrica que puede ser interpretada por el ESP32.
+> El ESP32 ejecuta un programa almacenado en su memoria. Este programa le permite leer las señales enviadas por los sensores, procesar los valores obtenidos y transmitir la información hacia el equipo de monitoreo.
 
-> Dentro del sistema, el sensor monitorea continuamente la concentración de humo. Los valores obtenidos son enviados al ESP32, que los adquiere y transmite hacia el equipo de monitoreo.
+> Su funcionamiento se divide principalmente en dos partes: la función `setup()`, que configura los componentes al encender el sistema, y la función `loop()`, que realiza continuamente la lectura y transmisión de los datos.
+
+**Conectividad**
+
+> El ESP32 cuenta con conexión Wi-Fi integrada, por lo que puede conectarse a una red local sin utilizar un módulo adicional.
+
+> En el proyecto, esta conexión permitirá transmitir los valores obtenidos por los sensores hacia el equipo o plataforma de monitoreo. Si la conexión se interrumpe, el ESP32 continuará realizando las lecturas y podrá intentar reconectarse a la red.
 
 **¿Cómo se implementaría?**
 
-> El sensor MQ-135 se conectará al módulo ESP32. El sensor realizará el monitoreo de la concentración de humo presente en el ambiente.
+> 1. Los sensores utilizados en el proyecto se conectarán a los pines de entrada del ESP32.
 
-> El ESP32 se encargará de adquirir la información proporcionada por el sensor y transmitirla hacia el equipo de monitoreo.
+> 2. El ESP32 adquirirá las señales analógicas o digitales generadas por los sensores.
 
-**Entrada**
+> 3. Los valores obtenidos serán procesados y comparados con los límites definidos para el sistema.
 
-> La entrada del sensor corresponde al aire del ambiente, en el cual se encuentran las sustancias y gases que serán detectados.
+> 4. El ESP32 se conectará a la red Wi-Fi disponible en la vivienda.
 
-**Salida**
+> 5. La información será transmitida hacia el equipo de monitoreo para mostrar el estado de las condiciones ambientales.
 
-> La salida del sensor es una señal eléctrica que representa los cambios detectados en el ambiente. Esta información puede ser leída por el ESP32 para obtener los valores correspondientes a la concentración detectada.
+> 6. El proceso de lectura y transmisión se realizará continuamente mientras el sistema se encuentre encendido.
+
+**Entradas**
+
+> Las entradas del ESP32 corresponden a las señales analógicas y digitales enviadas por los sensores conectados al sistema.
+
+> Entre las entradas contempladas se encuentra la señal generada por el sensor MQ-135, la cual representa los cambios detectados en la calidad del aire y la posible concentración de humo.
+
+**Salidas**
+
+> La salida principal del ESP32 será la información procesada y transmitida mediante Wi-Fi hacia el equipo de monitoreo.
+
+> También puede utilizar la comunicación serial para mostrar las lecturas obtenidas durante la programación y las pruebas del prototipo.
+
+**Pines utilizados**
+
+| Pin o conexión | Tipo | Función |
+|---|---|---|
+| `VIN` o `5V` | Entrada | Permite alimentar la placa, dependiendo del modelo utilizado. |
+| `3V3` | Salida | Proporciona alimentación regulada de 3.3 V. |
+| `GND` | Conexión común | Funciona como referencia de tierra para el circuito. |
+| `GPIO` | Entrada o salida | Permite conectar sensores y otros componentes. |
+| `ADC` | Entrada analógica | Permite leer la señal analógica de sensores como el MQ-135. |
+| `TX` y `RX` | Comunicación | Permiten enviar y recibir información mediante comunicación serial. |
+| Wi-Fi | Comunicación inalámbrica | Permite transmitir la información hacia el equipo de monitoreo. |
+
+> La selección definitiva de los pines GPIO se realizará al elaborar el diagrama de conexiones del prototipo.
 
 **Funciones y comandos utilizados**
 
-- `analogRead()`: permite realizar la lectura de una señal analógica proveniente del sensor.
-- `digitalRead()`: permite realizar la lectura de una señal digital del módulo.
-- `pinMode()`: permite configurar el pin del ESP32 como entrada.
+- `setup()`: contiene las instrucciones que se ejecutan una sola vez al encender o reiniciar el ESP32.
+- `loop()`: contiene las instrucciones que se ejecutan continuamente.
+- `pinMode()`: permite configurar un pin como entrada o salida.
+- `analogRead()`: permite adquirir una señal analógica proveniente de un sensor.
+- `digitalRead()`: permite adquirir el estado digital de un sensor.
 - `Serial.begin()`: inicia la comunicación serial.
-- `Serial.println()`: permite mostrar los valores obtenidos por el sensor.
-- `if`: permite comparar los valores obtenidos con los límites definidos.
+- `Serial.print()`: muestra información en el monitor serial sin realizar un salto de línea.
+- `Serial.println()`: muestra información en el monitor serial y realiza un salto de línea.
+- `WiFi.begin()`: inicia la conexión del ESP32 con una red Wi-Fi.
+- `WiFi.status()`: permite comprobar el estado de la conexión Wi-Fi.
+- `if`: permite comparar las lecturas con los límites establecidos.
+- `delay()`: establece una pausa entre las lecturas realizadas.
+- `millis()`: permite controlar intervalos de tiempo sin detener completamente la ejecución del programa.
+
+**Ejemplo de conexión Wi-Fi**
+
+```cpp
+#include <WiFi.h>
+
+const char* nombreRed = "NOMBRE_DE_LA_RED";
+const char* contrasena = "CONTRASENA";
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(nombreRed, contrasena);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Conectando a la red Wi-Fi...");
+  }
+
+  Serial.println("ESP32 conectado a la red");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+}
+```
+
+> Por seguridad, el nombre y la contraseña reales de la red Wi-Fi no deberán publicarse dentro del repositorio de GitHub.
 
 **Características**
 
-- Detecta determinados gases presentes en el aire.
-- Permite detectar cambios en la calidad del aire.
-- Permite monitorear la concentración de humo.
-- Cuenta con salida analógica.
-- Puede contar con salida digital.
-- Puede conectarse al ESP32.
-- Requiere un periodo de calentamiento para obtener lecturas más estables.
+> - Integra conectividad Wi-Fi.
+> - Integra conectividad Bluetooth.
+> - Puede recibir señales analógicas y digitales.
+> - Cuenta con múltiples pines de entrada y salida.
+> - Puede conectarse con diferentes tipos de sensores.
+> - Puede procesar la información localmente.
+> - Permite transmitir información mediante Internet.
+> - Puede programarse utilizando Arduino IDE.
+> - Es compatible con el lenguaje de programación C/C++.
+> - Funciona con niveles lógicos de 3.3 V.
+> - Puede utilizar protocolos de comunicación como UART, I2C y SPI.
+> - Tiene un tamaño reducido y un consumo energético adecuado para prototipos IoT.
+
+**Precauciones**
+
+> - Los pines del ESP32 trabajan con un nivel lógico máximo de 3.3 V.
+> - No se deben conectar señales de 5 V directamente a sus entradas.
+> - Se debe comprobar el voltaje de salida de cada sensor antes de conectarlo.
+> - Todos los componentes deben compartir una conexión común a `GND`.
+> - Las conexiones deben realizarse con el ESP32 desconectado de la alimentación.
+> - Las credenciales de la red Wi-Fi no deben publicarse en GitHub.
 
 **Función dentro del proyecto**
 
-> El sensor MQ-135 tiene como función monitorear la concentración de humo dentro de la vivienda. La información obtenida será adquirida por el ESP32 y transmitida hacia el equipo de monitoreo para identificar condiciones normales o posibles indicios de incendio.
+> El ESP32 tendrá la función de controlar el proceso de adquisición y transmisión de la información del sistema. Recibirá las señales generadas por los sensores, procesará las lecturas y las comparará con los valores establecidos para identificar condiciones normales o posibles indicios de incendio.
 
-### Sensor de flama KY-026
+> Posteriormente, transmitirá los resultados mediante Wi-Fi hacia el equipo de monitoreo, donde será posible consultar el estado de las condiciones ambientales dentro de la vivienda.
 
-El sensor KY-026 detecta radiación infrarroja producida por una llama. Se utilizará como una señal complementaria para comprobar la posible presencia de fuego.
+**Flujo de funcionamiento**
 
-Su funcionamiento depende de que la llama se encuentre dentro de su campo de visión. Por este motivo, no debe utilizarse como el único mecanismo de detección.
+> **Sensores → ESP32 → procesamiento de datos → conexión Wi-Fi → equipo de monitoreo**
 
-### Sensor DHT11 o DHT22
+**Referencias**
 
-Este sensor permitirá medir la temperatura y la humedad del ambiente. Un incremento considerable de temperatura puede representar una condición anormal, especialmente cuando también se detecta humo, gas o una flama.
+> Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
 
-El DHT11 es económico y suficiente para una demostración básica. El DHT22 puede utilizarse si se requiere mayor precisión y un intervalo de medición más amplio.
-
-### Buzzer
-
-El buzzer funcionará como alarma local. Cuando el ESP32 detecte una condición peligrosa, lo activará para alertar a las personas que se encuentren dentro de la vivienda.
-
-La alarma local deberá funcionar aunque el sistema no tenga conexión a Internet.
-
-### Indicadores LED
-
-Los indicadores LED mostrarán el estado del sistema
-
-## Materiales para montaje
-
-Además de los componentes electrónicos, se necesitarán los siguientes materiales:
-
-- Protoboard.
-- Cables jumper (Macho - Hembra / Hembra - Hembra / Macho - Macho)
-- Resistencias de 220 Ω.
-- Cable USB.
-- Prototipo físico a escala de una vivienda o espacio departamental
-- Cinta Aislante
-- Multímetro para verificar voltajes
-
-## Herramientas de software
-
-| Software o servicio | Utilidad |
-|---|---|
-| Arduino IDE | Programación y carga del código en el ESP32. |
-| Lenguaje C/C++ | Lectura de sensores y programación de la lógica de detección. |
-| Monitor serial | Visualización y comprobación de las mediciones durante las pruebas. |
-| GitHub | Control de versiones, almacenamiento del código y documentación del proyecto. |
-
-La plataforma IoT definitiva será seleccionada de acuerdo con los requerimientos del proyecto. Para la primera versión se priorizarán la lectura de sensores y la activación de la alarma local.
-
-## Componentes opcionales
-
-En versiones posteriores se podrían incorporar:
-
-- Pantalla OLED para mostrar las mediciones.
-- Memoria microSD para guardar información sin conexión.
-- Relé para controlar un extractor.
-- Batería de respaldo.
-- Aplicación móvil para recibir notificaciones.
-- Cámara para comprobar visualmente la presencia de fuego.
-
-Los actuadores que controlen equipos eléctricos, válvulas o sistemas de extinción necesitarán aislamiento, protecciones y una revisión técnica adicional.
+> Espressif Systems. (s. f.). *ESP32 series datasheet*. https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
 
 ## Referencia
 
