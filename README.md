@@ -146,7 +146,7 @@ Para desarrollar el prototipo del sistema IoT de detección de incendios se util
 | `TX` y `RX` | Comunicación | Permiten enviar y recibir información mediante comunicación serial. |
 | Wi-Fi | Comunicación inalámbrica | Permite transmitir la información hacia el equipo de monitoreo. |
 
-> La selección definitiva de los pines GPIO se realizará al elaborar el diagrama de conexiones del prototipo.
+> La selección definitiva de los pines GPIO dependerá del diagrama de conexiones del prototipo.
 
 **Funciones y comandos utilizados**
 
