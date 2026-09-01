@@ -21,7 +21,15 @@ La implementación de un sistema IoT para el monitoreo de temperatura, humo y ga
 
 El desarrollo de este proyecto es importante debido a que busca mejorar la seguridad dentro de las viviendas mediante el uso de tecnología IoT. La integración de sensores y conexión inalámbrica permitirá detectar condiciones que puedan indicar la presencia de un incendio y comunicar esta información de manera oportuna al usuario.
 
-Asimismo, el sistema permitirá monitorear las condiciones del interior de la vivienda y generar alertas cuando se detecten valores anormales, incluso cuando el usuario no se encuentre en el lugar. El uso de componentes electrónicos accesibles permitirá desarrollar una alternativa funcional y de bajo costo para 
+Asimismo, el sistema permitirá monitorear las condiciones del interior de la vivienda y generar alertas cuando se detecten valores anormales, incluso cuando el usuario no se encuentre en el lugar. El uso de componentes electrónicos accesibles permitirá desarrollar una alternativa funcional y de bajo costo 
+
+Alcance
+
+El proyecto comprende el diseño y desarrollo de un prototipo destinado al monitoreo de las condiciones ambientales en una o varias áreas de una vivienda. Para ello, se utilizarán sensores que permitirán obtener información sobre variables como temperatura, humo y gases.
+
+Los datos obtenidos serán procesados mediante un microcontrolador y enviados a través de una conexión a Internet hacia una plataforma de monitoreo, donde podrán ser consultados por el usuario. Cuando se detecten valores que representen una posible situación de riesgo, el sistema podrá activar una alarma y enviar una notificación.
+
+El proyecto estará orientado principalmente a la detección y notificación de posibles incendios. No incluirá sistemas automáticos para extinguir el fuego y no pretende sustituir los equipos profesionales de detección y protección contra incendios.
 
 Estos son los elementos empleados en el proyecto
 
