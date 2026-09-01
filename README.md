@@ -13,6 +13,10 @@ En base al diseño realizado para crear el sistema se consideran los siguientes 
 + Tecnologías de comunicación: WiFi, Bluetooth
 + Interfaz:
 
+**Hipotesis**
+
+La implementación de un sistema IoT para el monitoreo de temperatura, humo y gases dentro de una vivienda permitirá detectar oportunamente condiciones que puedan estar relacionadas con un incendio. El sistema podrá generar alertas para informar al usuario sobre una posible situación de riesgo, lo que permitirá mejorar el tiempo de respuesta ante una emergencia.
+
 **Justificación**
 
 El desarrollo de este proyecto es importante debido a que busca mejorar la seguridad dentro de las viviendas mediante el uso de tecnología IoT. La integración de sensores y conexión inalámbrica permitirá detectar condiciones que puedan indicar la presencia de un incendio y comunicar esta información de manera oportuna al usuario.
