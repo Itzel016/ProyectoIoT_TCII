@@ -226,14 +226,183 @@ void loop() {
 
 > **Sensores → ESP32 → procesamiento de datos → conexión Wi-Fi → equipo de monitoreo**
 
-**Referencias**
+# **Sensor DHT11**
 
-> Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
+**¿Qué es?**
 
-> Espressif Systems. (s. f.). *ESP32 series datasheet*. https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
+> El DHT11 es un sensor digital utilizado para medir la temperatura y la humedad relativa del ambiente. Es un componente económico y común en proyectos electrónicos y sistemas relacionados con el Internet de las Cosas.
+
+> En este proyecto se utilizará para monitorear la temperatura dentro de una vivienda e identificar incrementos anormales que puedan estar relacionados con un posible incendio.
+
+**¿Cómo funciona?**
+
+> El DHT11 contiene un elemento encargado de medir la humedad y un termistor que permite detectar la temperatura. Internamente procesa ambas mediciones y las envía mediante una señal digital hacia el ESP32.
+
+> El ESP32 solicita periódicamente la información al sensor y obtiene dos valores: la temperatura expresada en grados Celsius y la humedad relativa expresada en porcentaje.
+
+> La temperatura por sí sola no confirma la existencia de un incendio. Por este motivo, sus lecturas serán analizadas junto con la información obtenida por el sensor MQ-135 y los demás componentes del sistema.
+
+**Valores de medición**
+
+| Variable | Rango aproximado | Precisión aproximada |
+|---|---:|---:|
+| Temperatura | De 0 °C a 50 °C | ±2 °C |
+| Humedad relativa | De 20 % a 80 % | ±5 % |
+| Frecuencia de lectura | Una lectura por segundo | 1 Hz |
+
+> Estos valores corresponden a las características generales del DHT11 y pueden presentar variaciones dependiendo del fabricante, la ubicación y las condiciones ambientales.
+
+**Valores de referencia para el proyecto**
+
+> El sensor registrará continuamente la temperatura y la humedad dentro de la vivienda. Primero se obtendrán mediciones en condiciones normales para establecer un valor ambiental de referencia.
+
+> Cuando se detecte un incremento considerable de temperatura respecto al valor normal, el ESP32 marcará la lectura como una posible condición de riesgo. Esta información será analizada junto con la concentración detectada por el MQ-135.
+
+> El límite definitivo de temperatura no se establecerá de manera arbitraria. Se determinará durante la fase de calibración y pruebas controladas del prototipo.
+
+**¿Cómo se implementaría?**
+
+> 1. El sensor DHT11 se conectará a uno de los pines digitales del ESP32.
+
+> 2. El sensor realizará mediciones periódicas de temperatura y humedad dentro de la vivienda.
+
+> 3. El ESP32 solicitará las mediciones mediante la librería correspondiente.
+
+> 4. Los valores obtenidos serán comparados con los límites definidos durante las pruebas del sistema.
+
+> 5. La información será transmitida mediante Wi-Fi hacia el equipo de monitoreo.
+
+> 6. Los valores del DHT11 serán analizados junto con la información proporcionada por el MQ-135 para identificar posibles condiciones de riesgo.
+
+**Entrada**
+
+> La entrada del DHT11 corresponde a las condiciones ambientales que rodean al sensor. El componente percibe la temperatura del aire y la cantidad de humedad presente en el entorno.
+
+**Salida**
+
+> La salida del DHT11 es una señal digital que contiene los valores de temperatura y humedad relativa.
+
+> Esta señal es enviada a uno de los pines GPIO del ESP32, donde es interpretada mediante una librería de programación.
+
+**Pines del sensor**
+
+| Pin | Tipo | Función |
+|---|---|---|
+| `VCC` | Entrada | Proporciona alimentación eléctrica al sensor. |
+| `DATA` | Salida digital | Envía al ESP32 los valores de temperatura y humedad. |
+| `GND` | Conexión común | Conecta el sensor a tierra. |
+
+> Algunos sensores DHT11 individuales cuentan con cuatro pines, mientras que los módulos comerciales normalmente tienen tres. En la versión de cuatro pines, uno de ellos no se utiliza.
+
+**Conexión propuesta con el ESP32**
+
+| DHT11 | ESP32 | Función |
+|---|---|---|
+| `VCC` | `3V3` | Alimentación de 3.3 V |
+| `DATA` | `GPIO 14` | Transmisión de las mediciones |
+| `GND` | `GND` | Tierra común |
+
+> Si se utiliza el sensor DHT11 sin una tarjeta de módulo, puede necesitarse una resistencia de aproximadamente 10 kΩ entre los pines `VCC` y `DATA`. Algunos módulos ya incluyen esta resistencia.
+
+**Librería utilizada**
+
+> Para facilitar la comunicación entre el DHT11 y el ESP32 se utilizará la librería `DHT sensor library`, disponible en el administrador de librerías de Arduino IDE.
+
+> También puede ser necesario instalar la librería `Adafruit Unified Sensor`, dependiendo de la versión utilizada.
+
+**Funciones y comandos utilizados**
+
+- `#include <DHT.h>`: incluye la librería necesaria para controlar el sensor.
+- `DHT dht()`: crea el objeto que representa al sensor y define el pin utilizado.
+- `dht.begin()`: inicia la comunicación con el DHT11.
+- `dht.readTemperature()`: obtiene la temperatura en grados Celsius.
+- `dht.readHumidity()`: obtiene el porcentaje de humedad relativa.
+- `isnan()`: comprueba si ocurrió un error durante la lectura.
+- `Serial.begin()`: inicia la comunicación serial.
+- `Serial.print()`: muestra información sin realizar un salto de línea.
+- `Serial.println()`: muestra información y realiza un salto de línea.
+- `if`: permite comparar la temperatura con los límites establecidos.
+- `delay()`: permite establecer un intervalo entre las lecturas.
+
+**Ejemplo de lectura**
+
+```cpp
+#include <DHT.h>
+
+#define PIN_DHT 14
+#define TIPO_DHT DHT11
+
+DHT dht(PIN_DHT, TIPO_DHT);
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+}
+
+void loop() {
+  float humedad = dht.readHumidity();
+  float temperatura = dht.readTemperature();
+
+  if (isnan(humedad) || isnan(temperatura)) {
+    Serial.println("Error al obtener la lectura del DHT11");
+    delay(2000);
+    return;
+  }
+
+  Serial.print("Temperatura: ");
+  Serial.print(temperatura);
+  Serial.println(" °C");
+
+  Serial.print("Humedad: ");
+  Serial.print(humedad);
+  Serial.println(" %");
+
+  delay(2000);
+}
+```
+
+> El intervalo de dos segundos permite que el sensor complete correctamente sus mediciones antes de solicitar una nueva lectura.
+
+**Características**
+
+> - Permite medir temperatura ambiental.
+> - Permite medir humedad relativa.
+> - Proporciona una señal digital.
+> - Puede conectarse directamente al ESP32.
+> - Tiene un consumo energético reducido.
+> - Cuenta con un tamaño compacto.
+> - Es económico y fácil de conseguir.
+> - Puede programarse mediante una librería de Arduino IDE.
+> - Su rango aproximado de temperatura es de 0 °C a 50 °C.
+> - Su rango aproximado de humedad es de 20 % a 80 %.
+> - Puede realizar aproximadamente una lectura por segundo.
+> - No necesita una entrada analógica del ESP32.
+
+**Precauciones y limitaciones**
+
+> - El DHT11 no detecta directamente humo, gas ni fuego.
+> - La temperatura por sí sola no permite confirmar un incendio.
+> - Su rango y precisión son limitados en comparación con sensores más avanzados.
+> - No debe colocarse directamente frente a una llama.
+> - No debe exponerse al agua o a condensación.
+> - Debe instalarse en una zona con circulación de aire.
+> - Las lecturas deben realizarse con un intervalo suficiente.
+> - Los valores obtenidos deben combinarse con las mediciones de otros sensores.
+
+**Función dentro del proyecto**
+
+> El DHT11 tendrá como función monitorear la temperatura y la humedad dentro de la vivienda. Sus mediciones serán adquiridas por el ESP32 y transmitidas hacia el equipo de monitoreo.
+
+> Cuando se detecte un incremento anormal de temperatura, el ESP32 comparará esta información con los valores proporcionados por el MQ-135. La combinación de las mediciones permitirá identificar con mayor precisión condiciones normales o posibles indicios de incendio.
+
+**Flujo de funcionamiento**
+
+> **Temperatura y humedad del ambiente → DHT11 → ESP32 → procesamiento de datos → conexión Wi-Fi → equipo de monitoreo**
 
 ## Referencia
 
-Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
+> Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
 
-contribuir a la prevención y detección oportuna de incendios en los hogares.
+> Aosong Electronics Co., Ltd. (s. f.). *DHT11 humidity and temperature sensor datasheet*. https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf
+
+> Espressif Systems. (s. f.). *ESP32 series datasheet*. https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
