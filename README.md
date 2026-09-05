@@ -4,14 +4,18 @@
 Las principales causas de incendios en viviendas en México se relacionan con fallas en las instalaciones eléctricas, fugas o acumulación de Gas LP, grasa en la cocina y incendios provocados intencionalmente; cuando ocurre un incendio dentro de una vivienda de manera inesperada esta se propaga rápidamente dentro de la vivienda poniendo en riesgo a los habitantes de esta. Durante un incendio las personas y sus bienes materiales se encuentran en riesgo, ya que el fuego puede provocar pérdidas económicas debido a la destrucción de muebles, documentos y otros objetos de valor, además la exposición al humo y el fuego ponen en riesgo la integridad de las personas que habitan la vivienda y en casos más graves provocar lesiones y incluso pérdidas humanas.
 Uno de los problemas que se presenta es que cuando el incendio se detecta ha alcanzado una gran parte de la vivienda y limitando el tiempo para que los habitantes salgan para solicitar ayuda. Por ello es necesario contar con un sistema capaz de detectar de manera temprana un posible incendio mediante el uso de sensores de humo, gas, temperatura y humedad con el propósito de identificar de manera oportuna la presencia de un incendio brindando mayor seguridad para los habitantes y reducción de pérdidas económicas.
 
-El presente proyecto demuestra el uso de tecnologías relacionadas con el *Internet de las Cosas* (IoT o por sus siglas en inglés _Internet of Things_) y su relación con los Sistemas Embebidos al integrar la combinación entre hardware y software.
-En base al diseño realizado para crear el sistema se consideran los siguientes elementos: 
-+ Microcontrolador: Placa de desarrollo ESP32
-+ Sensores:
-+ Actuadores:
-+ Protocolos de comunicación: MQTT
-+ Tecnologías de comunicación: WiFi, Bluetooth
-+ Interfaz:
+El presente proyecto demuestra el uso de tecnologías relacionadas con el *Internet de las Cosas* (IoT, por sus siglas en inglés *Internet of Things*) y su relación con los Sistemas Embebidos, mediante la integración de hardware y software para la detección y respuesta ante posibles incendios en el interior de una vivienda.
+
+En base al diseño realizado para crear el sistema se consideran los siguientes elementos:
+
+* **Microcontrolador:** Placa de desarrollo ESP32.
+* **Sensores:** BME680, MQ-2, KY-026 y GPS NEO-6M.
+* **Actuadores:** Buzzer, LEDs, pantalla LCD, servomotores, bomba de agua y aspersor.
+* **Protocolos de comunicación:** MQTT.
+* **Tecnologías de comunicación:** Wi-Fi y Bluetooth.
+* **Backend:** Spring Boot y API REST.
+* **Base de datos:** MySQL para el almacenamiento de mediciones, eventos y alertas.
+* **Interfaz:** Aplicación web desarrollada con HTML, CSS y JavaScript para el monitoreo de las variables, visualización de alertas y control de los actuadores.
 
 **Hipotesis**
 
