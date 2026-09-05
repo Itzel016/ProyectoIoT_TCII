@@ -411,6 +411,46 @@ void loop() {
 
 > **Temperatura y humedad del ambiente → DHT11 → ESP32 → procesamiento de datos → conexión Wi-Fi → equipo de monitoreo**
 
+## Sensor de fuego KY-026
+
+**¿Qué es?**
+
+> El KY-026 es un módulo electrónico utilizado para detectar la presencia de una llama mediante la radiación infrarroja que esta produce, el cual se utiliza en proyectos de seguridad, sistemas de alarma y prototipos relacionados con la detección de incendios.
+
+> Durante el desarrollo de éste proyecto servirá como una fuente adicional de información para identificar una posible situación de incendio dentro de la vivienda, dado que sus lecturas serán analizadas junto con los datos obtenidos por los sensores de temperatura, humedad, humo y gases.
+
+**¿Cómo funciona?**
+
+> El dispositivo cuenta con un módulo receptor sensible a determinadas longitudes de onda de luz infrarroja, generalmente dentro de un rango aproximado de 760 a 1100 nanómetros, es por ello que cuando existe una llama frente al sensor, la radiación recibida produce una variación en su señal eléctrica. El módulo incorpora un comparador LM393 y un potenciómetro que permite ajustar la sensibilidad de la salida digital. Dependiendo de la intensidad de la llama detectada y del ajuste realizado, el módulo puede indicar si existe o no una posible llama.
+
+> Debido a que otras fuentes de luz o calor pueden producir radiación infrarroja, la activación del KY-026 no confirmará por sí sola la existencia de un incendio, es necesario reforzar la medición del resultado con mediciones adicionales tales como: temperatura, humo y gases.
+
+**Tipo de detección**
+
+> El KY-026 no mide directamente la temperatura ni el tamaño del fuego. Su función consiste en detectar cambios en la intensidad de la radiación infrarroja recibida.
+
+> La capacidad de detección puede variar dependiendo de la distancia, el tamaño de la llama, la orientación del sensor y las condiciones de iluminación. Por eso, los valores finales se definirán después de realizar varias pruebas.
+
+**Valores de referencia para el proyecto**
+
+> Primero se tomarán lecturas del sensor en un ambiente normal y sin presencia de fuego. Después, se harán pruebas con una llama pequeña y controlada para comparar cómo cambia la señal.
+
+> La salida digital servirá para saber cuándo se supera el nivel ajustado con el potenciómetro, mientras que la salida analógica mostrará los cambios en la intensidad detectada.
+
+> El valor final se definirá después de realizar las pruebas de calibración, ya que las lecturas pueden variar dependiendo del módulo y de las condiciones del ambiente.
+
+**¿Cómo se implementaría**
+> - El sensor KY-026 se conectará al ESP32 para recibir alimentación y enviar sus lecturas.
+> - Se colocará apuntando hacia el área que se quiere monitorear.
+> - El ESP32 revisará constantemente las salidas analógica y digital del sensor.
+> - La sensibilidad se ajustará con el potenciómetro que incluye el módulo.
+> - Los datos obtenidos se compararán con las lecturas de los demás sensores.
+> - Si se detecta una llama y también se presentan otros cambios en el ambiente, el sistema aumentará el nivel de riesgo y podrá generar una alerta.
+> - Finalmente, la información se enviará por medio de Wi-Fi y MQTT al equipo de monitoreo.
+
+** Entrada **
+> El KY-026 recibe radiación infrarroja del ambiente, la cual puede ser generada por una llama o por otras fuentes cercanas de luz y calor.
+
 ## Referencia
 
 > Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
