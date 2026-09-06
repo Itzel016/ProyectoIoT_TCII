@@ -448,8 +448,93 @@ void loop() {
 > - Si se detecta una llama y también se presentan otros cambios en el ambiente, el sistema aumentará el nivel de riesgo y podrá generar una alerta.
 > - Finalmente, la información se enviará por medio de Wi-Fi y MQTT al equipo de monitoreo.
 
-** Entrada **
+**Entrada**
 > El KY-026 recibe radiación infrarroja del ambiente, la cual puede ser generada por una llama o por otras fuentes cercanas de luz y calor.
+
+**Salidas**
+> El módulo cuenta con una salida analógica y una digital. La salida analógica muestra los cambios en la intensidad detectada, mientras que la salida digital indica si se superó el nivel ajustado con el potenciómetro.
+
+**Pines del sensor**
+| Pin   | Tipo             | Función                                                    |
+|-------|------------------|------------------------------------------------------------|
+| `VCC` | Entrada          | Proporciona alimentación eléctrica al módulo.              |
+| `GND` | Conexión común   | Conecta el módulo a tierra.                                |
+| `A0`  | Salida analógica | Entrega un valor relacionado con la intensidad detectada.  |
+| `D0`  | Salida digital   | Indica si se alcanzó el nivel configurado.                 |
+
+**Funciones y comandos utilizados**
+1. `pinMode()`: configura el pin digital que recibirá la señal del sensor.
+2. `analogRead()`: lee el valor de la salida analógica.
+3. `digitalRead()`: revisa el estado de la salida digital.
+4. `Serial.begin()`: inicia la comunicación con el monitor serial.
+5. `Serial.print()`: muestra datos en la misma línea.
+6. `Serial.println()`: muestra datos y agrega un salto de línea.
+7. `if`: comprueba si se cumplen las condiciones para detectar una posible llama.
+8. `delay()`: agrega un tiempo de espera entre cada lectura.
+9. `millis()`: controla el tiempo entre lecturas sin detener por completo el programa.
+
+**Ejemplo de lectura**
+
+```cpp
+#define PIN_ANALOGICO 34
+#define PIN_DIGITAL 27
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(PIN_ANALOGICO, INPUT);
+  pinMode(PIN_DIGITAL, INPUT);
+}
+
+void loop() {
+  int valorAnalogico = analogRead(PIN_ANALOGICO);
+  int estadoDigital = digitalRead(PIN_DIGITAL);
+
+  Serial.print("Lectura analógica: ");
+  Serial.println(valorAnalogico);
+
+  if (estadoDigital == LOW) {
+    Serial.println("Posible llama detectada");
+  } else {
+    Serial.println("No se detecta llama");
+  }
+
+  delay(1000);
+}
+```
+**Características**
+
+> - Detecta la radiación infrarroja que puede producir una llama.
+> - Tiene una salida analógica y una salida digital.
+> - Utiliza un comparador LM393.
+> - Incluye un potenciómetro para regular la sensibilidad de detección.
+> - Es compatible con el ESP32.
+> - Su tamaño es pequeño.
+> - Es accesible y sencillo de usar.
+> - Se puede ajustar de acuerdo con las condiciones del lugar.
+> - Puede trabajar junto con otros sensores.
+> - La lectura puede cambiar según la distancia y la posición de la llama.
+> - No necesita una librería adicional para obtener las lecturas.
+
+> En la mayoría de los módulos KY-026, la salida digital cambia a `LOW` cuando la lectura supera el nivel ajustado con el potenciómetro. Esto se comprobará durante las pruebas, ya que puede cambiar dependiendo de la versión del módulo.
+
+**Precauciones y limitaciones**
+
+> - El KY-026 no debe usarse por sí solo para confirmar la presencia de un incendio.
+> - Debe estar orientado hacia el área donde podría aparecer la llama.
+> - Las paredes u otros objetos pueden bloquear la detección.
+> - La luz del sol y algunas lámparas pueden alterar las lecturas detectadas, asimilando que forman parte de la llama.
+> - La distancia de detección cambia según el tamaño y la intensidad de la llama.
+> - No debe instalarse muy cerca del fuego.
+> - Es necesario calibrarlo antes de definir el nivel de detección.
+> - Las pruebas con fuego deben hacerse en un lugar seguro, controlado y bajo supervisión.
+> - Al tratarse de un prototipo académico, no reemplaza a un detector de incendios certificado.
+
+**Función dentro del proyecto**
+
+> El sensor KY-026 se utilizará para detectar la posible presencia de una llama en el área monitoreada. La señal será enviada al ESP32 y se comparará con las lecturas de los sensores de temperatura, humo y gases.
+
+> Si el KY-026 detecta una llama, el sistema revisará los datos de los demás sensores. Cuando varias lecturas indiquen un posible incendio, se generará una alerta y se activarán las acciones establecidas en el prototipo.
 
 ## Referencia
 
