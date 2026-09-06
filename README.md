@@ -1498,6 +1498,190 @@ void loop() {
 
 > Si se detecta un posible incendio, aparecerá un mensaje de alerta junto con las condiciones encontradas. De esta forma, la pantalla trabajará como complemento de los LEDs y de la aplicación web.
 
+# **Módulo relevador de un canal**
+
+**¿Qué es?**
+
+> El módulo relevador de un canal permite encender o apagar un dispositivo eléctrico mediante una señal de control.
+
+> En este proyecto se colocará entre el ESP32 y la bomba de agua, ya que el ESP32 solamente enviará la orden, mientras que la bomba recibirá la energía necesaria desde una fuente externa.
+
+**¿Cómo funciona?**
+
+> El relevador funciona como un interruptor eléctrico. Cuando recibe la señal del ESP32, sus contactos internos cambian de posición y cierran el circuito que alimenta la bomba.
+
+> Al retirar la señal, los contactos regresan a su posición inicial y la bomba se apaga.
+
+> La mayoría de estos módulos incluyen componentes de protección y un LED que indica cuándo se encuentra activado.
+
+**Tipo de actuador**
+
+> El relevador es un actuador de control porque permite abrir o cerrar un circuito.
+
+> No produce la respuesta final, pero permite que el ESP32 controle dispositivos que necesitan más corriente, como la bomba de agua.
+
+**Estados de funcionamiento**
+
+| Estado      | Contacto `COM-NO` | Resultado                           |
+|-------------|-------------------|-------------------------------------|
+| Desactivado | Abierto           | La bomba permanece apagada.         |
+| Activado    | Cerrado           | La bomba recibe energía y se enciende. |
+
+> Algunos relevadores se activan con `LOW` y otros con `HIGH`. Esto se deberá revisar antes de conectarlo con los demás componentes.
+
+**¿Cómo se implementaría?**
+
+> 1. La entrada del relevador se conectará a un pin digital del ESP32.
+> 2. La bomba y su fuente externa se conectarán a los contactos de carga del relevador.
+> 3. Al iniciar el sistema, el ESP32 mantendrá el relevador desactivado.
+> 4. Si se cumplen las condiciones de riesgo, enviará la señal de activación.
+> 5. El relevador cerrará el circuito y la bomba comenzará a funcionar.
+> 6. Al terminar el tiempo programado o recibir una orden de apagado, el relevador se desactivará.
+> 7. El estado de la bomba se registrará y podrá enviarse mediante MQTT.
+
+**Entrada**
+
+> El relevador recibe una señal digital desde el ESP32.
+
+> También necesita alimentación para hacer funcionar su circuito interno y cambiar la posición de los contactos.
+
+**Salida**
+
+> La salida consiste en abrir o cerrar el circuito conectado a sus terminales.
+
+> En el prototipo controlará el paso de corriente desde la fuente externa hasta la bomba de agua.
+
+**Pines de control**
+
+| Pin   | Tipo            | Función                                  |
+|-------|-----------------|------------------------------------------|
+| `VCC` | Entrada         | Proporciona alimentación al módulo.      |
+| `GND` | Tierra común    | Conecta el módulo a tierra.              |
+| `IN`  | Entrada digital | Recibe la señal enviada por el ESP32.    |
+
+**Terminales de carga**
+
+| Terminal | Nombre                | Función                                             |
+|----------|-----------------------|-----------------------------------------------------|
+| `COM`    | Puerto Común          | Punto principal de conexión de la carga.            |
+| `NO`     | Normalmente abierto   | Está desconectado cuando el relevador está apagado. |
+| `NC`     | Normalmente cerrado   | Está conectado cuando el relevador está apagado.    |
+
+> Para controlar la bomba se utilizarán `COM` y `NO`. De esta manera permanecerá apagada mientras el relevador no esté activado.
+
+**Conexión propuesta con el ESP32**
+
+| Relevador | ESP32 o fuente        | Función                                |
+|-----------|-----------------------|----------------------------------------|
+| `VCC`     | Alimentación compatible | Alimenta el módulo.                  |
+| `GND`     | `GND`                 | Conexión a tierra.                     |
+| `IN`      | `GPIO 26`             | Recibe la señal de control.            |
+| `COM`     | Positivo de la fuente | Recibe la alimentación de la bomba.    |
+| `NO`      | Positivo de la bomba  | Entrega corriente cuando se activa.    |
+
+> El negativo de la bomba se conectará directamente al negativo de su fuente.
+
+> El `GPIO 26` es una propuesta y podrá cambiar cuando se realice el diagrama completo.
+
+> También se deberá comprobar que el módulo reconozca correctamente la señal de 3.3 V del ESP32.
+
+**Diagrama general de conexión**
+
+> **Circuito de control:** ESP32 → `IN` del relevador
+
+> **Circuito de la bomba:** positivo de la fuente → `COM` → `NO` → bomba → negativo de la fuente
+
+> La bomba no deberá alimentarse desde el ESP32. El relevador solamente controlará el paso de corriente desde la fuente externa.
+
+**Funciones y comandos utilizados**
+
+- `pinMode()`: configura el pin del relevador como salida.
+- `digitalWrite()`: activa o desactiva el módulo.
+- `HIGH`: coloca el pin en nivel lógico alto.
+- `LOW`: coloca el pin en nivel lógico bajo.
+- `if`: revisa si se cumplen las condiciones de activación.
+- `millis()`: controla el tiempo de encendido sin detener el programa.
+- `Serial.begin()`: inicia la comunicación con el monitor serial.
+- `Serial.println()`: muestra el estado del relevador.
+- `delay()`: agrega una pausa durante pruebas sencillas.
+
+**Ejemplo de funcionamiento**
+
+```cpp
+#define PIN_RELEVADOR 26
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(PIN_RELEVADOR, OUTPUT);
+
+  // Este ejemplo utiliza un relevador que se activa con LOW
+  digitalWrite(PIN_RELEVADOR, HIGH);
+
+  Serial.println("Relevador desactivado");
+}
+
+void loop() {
+  bool activarBomba = false;
+
+  if (activarBomba) {
+    digitalWrite(PIN_RELEVADOR, LOW);
+    Serial.println("Relevador activado");
+  } else {
+    digitalWrite(PIN_RELEVADOR, HIGH);
+    Serial.println("Relevador desactivado");
+  }
+
+  delay(1000);
+}
+```
+
+> El ejemplo considera un relevador que se activa con `LOW`. Si el módulo funciona con `HIGH`, los estados deberán invertirse.
+
+**Prueba individual del relevador**
+
+> Antes de conectar la bomba, se probará solamente el relevador. Al activarlo se deberá escuchar el cambio de sus contactos y encenderse el LED indicador del módulo.
+
+> Después se revisará la continuidad entre `COM` y `NO`. Una vez confirmado su funcionamiento, se conectará la bomba con su fuente externa.
+
+**Características**
+
+> - Controla una carga mediante una señal digital.
+> - Funciona como un interruptor eléctrico.
+> - Puede utilizarse con el ESP32.
+> - Cuenta con terminales `COM`, `NO` y `NC`.
+> - Mantiene separado el circuito de control de los contactos de la carga.
+> - Permite controlar una bomba de agua.
+> - Generalmente incluye un LED indicador.
+> - Puede activarse de forma automática o manual.
+> - No necesita una librería adicional.
+> - Se controla con señales digitales.
+> - Permite utilizar una fuente externa.
+> - Evita conectar la bomba directamente al ESP32.
+
+**Precauciones y limitaciones**
+
+> - Se deberá comprobar el voltaje de alimentación del módulo.
+> - No todos los modelos reconocen correctamente una señal de 3.3 V.
+> - Se deberá revisar si se activa con `HIGH` o con `LOW`.
+> - La bomba tendrá que utilizar una fuente externa adecuada.
+> - Las conexiones se realizarán con la alimentación apagada.
+> - Se deberán identificar correctamente los terminales `COM`, `NO` y `NC`.
+> - El módulo se mantendrá lejos del agua.
+> - Los cables deberán estar aislados y bien sujetos.
+> - No se utilizará para controlar la instalación eléctrica de una vivienda real.
+> - En el prototipo solamente manejará cargas de bajo voltaje.
+> - Sus contactos se desgastan después de muchos ciclos de uso.
+> - Mientras está activado consume una pequeña cantidad de energía.
+
+**Función dentro del proyecto**
+
+> El relevador permitirá que el ESP32 encienda y apague la bomba de agua sin alimentarla directamente. Al recibir la señal de control, conectará o cortará la corriente proveniente de la fuente externa.
+
+> Se activará automáticamente cuando el sistema detecte un nivel de riesgo alto y también podrá controlarse desde la aplicación web.
+
+> De esta forma, el circuito del ESP32 se mantendrá separado del circuito encargado de alimentar la bomba.
+
 ## Referencia
 
 > Chow Díaz, S. Y., Cuthbert Moreno, A. A., Sambola, D.-M., & Flores-Pacheco, J. A. (2023). Sistema de alerta temprana para la reducción de riesgos de incendios en viviendas. *Nexo Revista Científica, 36*(03), 241–251. https://doi.org/10.5377/nexo.v36i03.16446
