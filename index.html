@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFire IoT - Panel de Monitoreo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Enlace directo al CSS para GitHub Pages -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="brand">
+            <div class="logo-wrapper">
+                <i class="fa-solid fa-fire-shield logo-icon"></i>
+            </div>
+            <div>
+                <h1>SmartFire IoT</h1>
+                <p>Centro de Comando y Monitoreo</p>
+            </div>
+        </div>
+        <div class="risk-badge status-normal" id="riskBadge">
+            <i class="fa-solid fa-shield-halved" id="riskIcon"></i>
+            <span id="riskText">ESTADO NORMAL</span>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+
+        <!-- 1. Clima Interior -->
+        <section class="card" id="card-temp">
+            <div class="card-header">
+                <span class="card-title">
+                    <div class="icon-box box-blue"><i class="fa-solid fa-temperature-three-quarters"></i></div>
+                    Clima Interior
+                </span>
+                <span class="sensor-tag">DHT11</span>
+            </div>
+            <div class="card-body">
+                <div class="metric-main text-gradient-blue"><span id="valTemp">24.5</span><span class="unit">°C</span></div>
+                <div class="metric-sub"><i class="fa-solid fa-droplet" style="color: #60a5fa;"></i> Humedad: <strong id="valHum" class="text-white">48</strong><strong class="text-white">%</strong></div>
+            </div>
+        </section>
+
+        <!-- 2. Calidad del Aire -->
+        <section class="card" id="card-humo">
+            <div class="card-header">
+                <span class="card-title">
+                    <div class="icon-box box-purple"><i class="fa-solid fa-smog"></i></div>
+                    Calidad del Aire
+                </span>
+                <span class="sensor-tag">MQ-135</span>
+            </div>
+            <div class="card-body">
+                <div class="metric-main text-gradient-purple"><span id="valHumo">45</span><span class="unit">ppm</span></div>
+                <div class="status-indicator text-success" id="msgHumo"><i class="fa-solid fa-circle-check"></i> Nivel seguro</div>
+            </div>
+        </section>
+
+        <!-- 3. Flama -->
+        <section class="card" id="card-flama">
+            <div class="card-header">
+                <span class="card-title">
+                    <div class="icon-box box-orange"><i class="fa-solid fa-fire"></i></div>
+                    Detección de Flama
+                </span>
+                <span class="sensor-tag">KY-026</span>
+            </div>
+            <div class="card-body flame-box">
+                <i class="fa-solid fa-fire-extinguisher flame-icon" id="iconFlama"></i>
+                <div class="status-indicator text-muted mt-2" id="msgFlama">Sin presencia de llama</div>
+            </div>
+        </section>
+
+        <!-- 4. Actuadores -->
+        <section class="card" id="card-actuadores">
+            <div class="card-header">
+                <span class="card-title">
+                    <div class="icon-box box-green"><i class="fa-solid fa-gears"></i></div>
+                    Actuadores
+                </span>
+                <span class="sensor-tag">Salidas</span>
+            </div>
+            <div class="card-body controls-container">
+                <div class="control-item">
+                    <div class="control-label"><span class="text-white">Puerta (SG90)</span><small class="text-muted">Escape</small></div>
+                    <button class="btn btn-off" id="btnPuerta" onclick="togglePuerta()"><i class="fa-solid fa-door-closed"></i> Cerrada</button>
+                </div>
+                <div class="control-item">
+                    <div class="control-label"><span class="text-white">Aspersor (5V)</span><small class="text-muted">Mitigación</small></div>
+                    <button class="btn btn-off" id="btnBomba" onclick="toggleBomba()"><i class="fa-solid fa-faucet-drip"></i> Apagado</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Gráfica (Ocupa 2 espacios) -->
+        <section class="card card-graph" id="card-grafica">
+            <div class="card-header">
+                <span class="card-title"><div class="icon-box box-blue"><i class="fa-solid fa-chart-area"></i></div> Tendencia en Tiempo Real</span>
+                <span class="sensor-tag">Monitor Analítico</span>
+            </div>
+            <div class="card-body" style="position: relative; height: 250px; width: 100%;">
+                <canvas id="sensorChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 6. Log de Eventos (Ocupa 1 espacio) -->
+        <section class="card" id="card-log">
+            <div class="card-header">
+                <span class="card-title"><div class="icon-box box-orange"><i class="fa-solid fa-list-check"></i></div> Registro de Eventos</span>
+            </div>
+            <div class="card-body log-container" id="eventLog"></div>
+        </section>
+
+        <!-- 7. Diagnóstico de Hardware (Ocupa 1 espacio para simetría) -->
+        <section class="card" id="card-diagnostico">
+            <div class="card-header">
+                <span class="card-title"><div class="icon-box box-green"><i class="fa-solid fa-server"></i></div> Estado del Sistema</span>
+                <span class="sensor-tag">En línea</span>
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                    <span class="text-muted"><i class="fa-brands fa-usb fa-fw"></i> Nodo ESP32</span>
+                    <span class="text-success" style="font-weight: 600;"><i class="fa-solid fa-circle-dot fa-fade"></i> Activo</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-top: 12px;">
+                    <span class="text-muted"><i class="fa-solid fa-network-wired fa-fw"></i> Broker MQTT</span>
+                    <span class="text-white" style="font-weight: 500;">Conectado</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; margin-top: 12px;">
+                    <span class="text-muted"><i class="fa-solid fa-wifi fa-fw"></i> Señal Wi-Fi</span>
+                    <span class="text-white" style="font-weight: 500;">-48 dBm</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                    <span class="text-muted"><i class="fa-solid fa-clock fa-fw"></i> Uptime</span>
+                    <span class="text-white" style="font-weight: 500;">02h 15m</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. GPS (Abarca todo el ancho) -->
+        <section class="card card-wide" id="card-gps">
+            <div class="card-header">
+                <span class="card-title"><div class="icon-box box-red"><i class="fa-solid fa-location-dot"></i></div> Geolocalización del Sistema</span>
+                <span class="sensor-tag">GPS NEO-6M</span>
+            </div>
+            <div class="card-body gps-container">
+                <div class="gps-coords">
+                    <div class="coord-box"><span class="coord-label">LATITUD</span><span class="coord-value" id="valLat">19.432608</span></div>
+                    <div class="coord-box"><span class="coord-label">LONGITUD</span><span class="coord-value" id="valLng">-99.133209</span></div>
+                    <div class="gps-status text-success mt-2"><i class="fa-solid fa-satellite-dish"></i> Conexión satelital estable</div>
+                </div>
+                <div class="map-placeholder">
+                    <div class="grid-overlay"></div>
+                    <i class="fa-solid fa-crosshairs map-icon"></i>
+                    <span>Sector de Monitoreo Activo</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Enlace directo al JS para GitHub Pages -->
+    <script src="script.js"></script>
+</body>
+</html>
